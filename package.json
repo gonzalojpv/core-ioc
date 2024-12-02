@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "my npm package",
   "main": "dist/index.js",
+  "private": true,
   "engines": {
     "node": "20"
   },

@@ -1,0 +1,5 @@
+query GetJobIdByExternalId($input: GetJobIdByExternalIdInput!) {
+  getJobIdByExternalId(input: $input) {
+    jobId
+  }
+}

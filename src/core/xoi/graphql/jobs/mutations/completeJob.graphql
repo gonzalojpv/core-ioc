@@ -1,0 +1,7 @@
+mutation CompleteJob($input: CompleteJobInput!) {
+  completeJob(input: $input) {
+    id
+    completedAt
+    completedBy
+  }
+}

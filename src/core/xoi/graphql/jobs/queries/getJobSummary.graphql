@@ -1,0 +1,32 @@
+query GetJobSummary($input: GetJobSummaryInput!) {
+  getJobSummary(input: $input) {
+    nextToken
+    jobSummary {
+      jobId
+      integrationEntityId {
+        namespace
+        id
+      }
+      documentation {
+        sourceId
+        workflowName
+        workflowLabel
+        workflowId
+        workflowJobId
+        traits
+        tags
+        stepTraits
+        note {
+          text
+        }
+        derivedData {
+          make
+          model
+          serial
+          transcript
+          manufacture_date
+        }
+      }
+    }
+  }
+}
