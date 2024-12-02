@@ -1,7 +1,7 @@
 mutation CreateJob($input: CreateJobInput!) {
-    createJob(input: $input) {
-        job {
-            ...JobFields
-        }
+  createJob(input: $input) {
+    job {
+      ...JobFields
     }
+  }
 }
