@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { GraphQLErrorSchema } from './xoi/schemas'
+import { GraphQLErrorSchema } from '../xoi/schemas'
+import { GraphQLClient } from 'graphql-request'
+import { getSdk } from '../../generated/graphql'
+import { randomBytes } from 'crypto'
 
 type GraphQLError = z.infer<typeof GraphQLErrorSchema>
 /**
@@ -38,4 +41,28 @@ export const parseGqlErrors = (error: GraphQLError): string => {
   })
 
   return message
+}
+
+export const createSdk = (url: string, authToken: string) => {
+  const shareClient = new GraphQLClient(url, {
+    headers: {
+      Authorization: authToken,
+    },
+  })
+  return getSdk(shareClient)
+}
+
+/**
+ * Mask a string by replacing all characters except the first n number of characters with `*`, where n defaults to 3.
+ */
+export const mask = (str: string, show = 3): string => {
+  if (!str) return '""'
+
+  if (str.length <= show) return '*'.repeat(str.length)
+
+  return str.substring(0, show) + '*'.repeat(str.length - show)
+}
+
+export const generateID = () => {
+  return randomBytes(16).toString('hex')
 }

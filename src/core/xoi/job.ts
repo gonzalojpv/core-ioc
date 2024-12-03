@@ -1,21 +1,38 @@
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { JobInterface } from './interfaces'
-import { WorkOrderReadyEvent } from './types'
-import { parseGqlErrors } from '../helper'
+import { WorkOrderReadyEventJob, TYPES } from './types'
+import { parseGqlErrors } from '../utils/helper'
+import Logger from '../utils/logger'
 import { GraphQLErrorSchema } from './schemas'
 import { CreateJobInput, Sdk, CompleteJobInput } from '../../generated/graphql'
 
 @injectable()
 class Job implements JobInterface {
-  public async cerateJob(workOrderReadyEvent: WorkOrderReadyEvent, sdk: Sdk) {
+  private _logger: Logger
+
+  constructor(@inject(TYPES.LoggerProps) logger: Logger) {
+    this._logger = logger
+  }
+
+  public async createJob(workOrderReadyEvent: WorkOrderReadyEventJob, sdk: Sdk) {
     const input: CreateJobInput = {
       newJob: { ...workOrderReadyEvent },
     }
 
     try {
-      return (await sdk.CreateJob({ input })).createJob.job
+      const result = await sdk.CreateJob({ input })
+
+      if (!result.createJob.job) {
+        throw new Error('Job creation failed')
+      }
+
+      this._logger.info('Creating job:', result.createJob.job)
+
+      return result.createJob.job
     } catch (error) {
       const errorMessage = parseGqlErrors(GraphQLErrorSchema.parse(error))
+
+      this._logger.error('Failed to create job:', error as Error)
 
       throw new Error(errorMessage)
     }
@@ -88,6 +105,7 @@ class Job implements JobInterface {
 
       return result?.getJob?.job
     } catch (error) {
+      this._logger.error('Failed to get job:', error as Error)
       const errorMessage = parseGqlErrors(GraphQLErrorSchema.parse(error))
 
       throw new Error(`Job with id ${jobId} not found: ${errorMessage}`)

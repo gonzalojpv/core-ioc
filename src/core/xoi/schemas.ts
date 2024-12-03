@@ -1,19 +1,17 @@
 import { z } from 'zod'
 
-export const WorkOrderReadyEventSchema = z.object({
+export const JobInputSchema = z.object({
   externalId: z.string(),
-  assigneeIds: z.array(z.string()),
-  jobLocation: z.string(),
-  customerName: z.string(),
+  assigneeIds: z.array(z.string().email('Invalid email format')),
+  jobLocation: z.string({
+    required_error: 'Job Location is required',
+    invalid_type_error: 'Job Location must be a string',
+  }),
+  customerName: z.string({
+    required_error: 'Customer Name is required',
+    invalid_type_error: 'Customer Name must be a string',
+  }),
   workOrderNumber: z.string().default('UNKOWN'), // Handles default for unknown workOrderNumber
-})
-
-const jobInputSchema = z.object({
-  externalId: z.string(),
-  assigneeIds: z.array(z.string()),
-  jobLocation: z.string(),
-  customerName: z.string(),
-  workOrderNumber: z.string(),
 })
 
 export const GraphQLErrorSchema = z
@@ -49,9 +47,56 @@ export const GraphQLErrorSchema = z
       variables: z.object({
         input: z.object({
           id: z.string().optional(),
-          newJob: jobInputSchema.optional(),
+          newJob: JobInputSchema.optional(),
         }),
       }),
     }),
+  })
+  .passthrough()
+
+const connectionFieldsSchema = z.object({
+  apiKey: z.string({
+    required_error: 'apiKey is required',
+    invalid_type_error: 'apiKey must be a string',
+  }),
+  apiUrl: z.string().url('API URL must be a valid URL'),
+  apiSecret: z.string(),
+})
+
+const connectionSchema = z.object({
+  configVarKey: z.string({
+    required_error: 'configVarKey is required',
+    invalid_type_error: 'configVarKey must be a string',
+  }),
+  key: z.string({
+    required_error: 'key is required',
+    invalid_type_error: 'key must be a string',
+  }),
+  fields: connectionFieldsSchema,
+})
+
+export const ConfigVarSchema = z
+  .object({
+    gqlJobsExternal: z.string({
+      required_error: 'gqlJobsExternal is required',
+      invalid_type_error: 'gqlJobsExternal must be a string',
+    }),
+    gqlUsersExternal: z.string({
+      required_error: 'gqlUsersExternal is required',
+      invalid_type_error: 'gqlUsersExternal must be a string',
+    }),
+    gqlContentExternal: z.string({
+      required_error: 'gqlContentExternal is required',
+      invalid_type_error: 'gqlContentExternal must be a string',
+    }),
+    gqlShareExternal: z.string({
+      required_error: 'gqlShareExternal is required',
+      invalid_type_error: 'gqlShareExternal must be a string',
+    }),
+    pjsaWorkflowTemplateExternalId: z.string({
+      required_error: 'pjsaWorkflowTemplateExternalId is required',
+      invalid_type_error: 'pjsaWorkflowTemplateExternalId must be a string',
+    }),
+    'XOi Connection': connectionSchema,
   })
   .passthrough()
