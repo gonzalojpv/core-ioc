@@ -33,5 +33,5 @@ build/
 Thumbs.db
 
 # Ignore lockfiles (optional)
-src/generated/*
+#src/generated/*
 package-lock.json
